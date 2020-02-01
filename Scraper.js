@@ -9,72 +9,9 @@ const stringToNumber = str => +str.replace(/,/g, '');
 
 class Scraper {
 	constructor() {
-		this.confirmedCasesUrl = 'https://bnonews.com/index.php/2020/01/the-latest-coronavirus-cases/';
+		// this.confirmedCasesUrl = 'https://bnonews.com/index.php/2020/01/the-latest-coronavirus-cases/';
 		this.timelineUrl = 'https://bnonews.com/index.php/2020/01/timeline-coronavirus-epidemic/';
-	}
-	
-	async getConfirmedCases() {
-		const res = await axios(this.confirmedCasesUrl);
-		const $ = cheerio.load(res.data);
-		const data = [];
-		
-		// Mainland China
-		const mainlandChinaTbl = $('.wp-block-table').first().find('tbody > tr');
-		mainlandChinaTbl.each((idx, item) => {
-			if (idx === 0 || idx+1 === mainlandChinaTbl.length) return;
-			
-			const td = $(item).children('td');
-			data.push({
-				country_or_region: td.eq(0).text().trim().replace(' (including Wuhan)', '').replace(' Region', ''),
-				cases: stringToNumber(td.eq(1).text().trim()),
-				deaths: stringToNumber(td.eq(2).text().trim()),
-				notes: td.eq(3).text().trim(),
-				source: td.eq(4).find('a').attr('href'),
-				mainlind_china: true
-			});
-		});
-		
-		// Regions
-		const regionsTbl = $('.wp-block-table').eq(1).find('tbody > tr');
-		regionsTbl.each((idx, item) => {
-			if (idx === 0 || idx+1 === regionsTbl.length) return;
-			
-			const td = $(item).children('td');
-			data.push({
-				country_or_region: td.eq(0).text().trim(),
-				cases: stringToNumber(td.eq(1).text().trim()),
-				deaths: stringToNumber(td.eq(2).text().trim()),
-				notes: td.eq(3).text().trim(),
-				source: td.eq(4).find('a').attr('href'),
-				mainlind_china: false
-			});
-		});
-		
-		// International
-		const internationalTbl = $('.wp-block-table').eq(2).find('tbody > tr');
-		internationalTbl.each((idx, item) => {
-			if (idx === 0 || idx+1 === internationalTbl.length) return;
-			
-			const td = $(item).children('td');
-			data.push({
-				country_or_region: td.eq(0).text().trim(),
-				cases: stringToNumber(td.eq(1).text().trim()),
-				deaths: stringToNumber(td.eq(2).text().trim()),
-				notes: td.eq(3).text().trim(),
-				source: td.eq(4).find('a').attr('href'),
-				mainlind_china: false
-			});
-		});
-		
-		return Promise.all(data.map((item) => {
-			return this.geocode(item.country_or_region)
-			.then(({ lat, lon }) => {
-				return {
-					...item,
-					coordinates: { lat, lon }
-				}
-			})
-		}));
+		this.confirmedCasesUrl = 'https://www.worldometers.info/coronavirus/';
 	}
 	
 	async getTimeline() {
@@ -96,6 +33,32 @@ class Scraper {
 				time_and_description: $(li).text().trim().replace(' (Source)', ''),
 				source: $(li).find('a').attr('href')
 			}))
+		}));
+	}
+
+	async getConfirmedCases() {
+		const res = await axios(this.confirmedCasesUrl);
+		const $ = cheerio.load(res.data);
+		const data = [];
+		$('#table3 tbody tr').each((idx, el) => {
+			const td = $(el).children('td');
+			const obj = {
+				country: td.eq(0).text().trim(),
+				cases: +td.eq(1).text().trim().replace(/,/g, ''),
+				deaths: +td.eq(2).text().trim().replace(/,/g, ''),
+				region: td.eq(3).text().trim(),
+			}
+			data.push(obj);
+		});
+		
+		return Promise.all(data.map((item) => {
+			return this.geocode(item.country)
+			.then(({ lat, lon }) => {
+				return {
+					...item,
+					coordinates: { lat, lon }
+				}
+			})
 		}));
 	}
 	

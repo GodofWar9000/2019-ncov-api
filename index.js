@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 
 const app = express();
 const cache = apicache.middleware;
-app.use(cache('30 minutes'));
+app.use(cache('10 minutes'));
 app.use(cors({
 	origin: process.env.ORIGIN || 'http://localhost:8080'
 }));

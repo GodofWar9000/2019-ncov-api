@@ -1,0 +1,18 @@
+{
+  "name": "2019-ncov-api",
+  "version": "1.0.0",
+  "description": "Coronavirus (2019-nCoV) API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index"
+  },
+  "keywords": ["coronavirus", "ncov"],
+  "author": "Robert Soriano",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "cheerio": "^1.0.0-rc.3",
+    "cors": "^2.8.5",
+    "fastify": "^2.11.0"
+  }
+}

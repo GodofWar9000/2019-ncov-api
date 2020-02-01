@@ -5,6 +5,8 @@ const geocoder = NodeGeocoder({
 	provider: 'openstreetmap'
 });
 
+const stringToNumber = str => +str.replace(/,/g, '');
+
 class Scraper {
 	constructor() {
 		this.confirmedCasesUrl = 'https://bnonews.com/index.php/2020/01/the-latest-coronavirus-cases/';
@@ -24,10 +26,11 @@ class Scraper {
 			const td = $(item).children('td');
 			data.push({
 				country_or_region: td.eq(0).text().trim().replace(' (including Wuhan)', '').replace(' Region', ''),
-				cases: td.eq(1).text().trim(),
-				deaths: td.eq(2).text().trim(),
+				cases: stringToNumber(td.eq(1).text().trim()),
+				deaths: stringToNumber(td.eq(2).text().trim()),
 				notes: td.eq(3).text().trim(),
-				source: td.eq(4).find('a').attr('href')
+				source: td.eq(4).find('a').attr('href'),
+				mainlind_china: true
 			});
 		});
 		
@@ -39,10 +42,11 @@ class Scraper {
 			const td = $(item).children('td');
 			data.push({
 				country_or_region: td.eq(0).text().trim(),
-				cases: td.eq(1).text().trim(),
-				deaths: td.eq(2).text().trim(),
+				cases: stringToNumber(td.eq(1).text().trim()),
+				deaths: stringToNumber(td.eq(2).text().trim()),
 				notes: td.eq(3).text().trim(),
-				source: td.eq(4).find('a').attr('href')
+				source: td.eq(4).find('a').attr('href'),
+				mainlind_china: false
 			});
 		});
 		
@@ -54,10 +58,11 @@ class Scraper {
 			const td = $(item).children('td');
 			data.push({
 				country_or_region: td.eq(0).text().trim(),
-				cases: td.eq(1).text().trim(),
-				deaths: td.eq(2).text().trim(),
+				cases: stringToNumber(td.eq(1).text().trim()),
+				deaths: stringToNumber(td.eq(2).text().trim()),
 				notes: td.eq(3).text().trim(),
-				source: td.eq(4).find('a').attr('href')
+				source: td.eq(4).find('a').attr('href'),
+				mainlind_china: false
 			});
 		});
 		

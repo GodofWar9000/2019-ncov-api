@@ -1,5 +1,9 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
+const NodeGeocoder = require('node-geocoder');
+const geocoder = NodeGeocoder({
+	provider: 'openstreetmap'
+});
 
 class Scraper {
 	constructor() {
@@ -19,7 +23,7 @@ class Scraper {
 			
 			const td = $(item).children('td');
 			data.push({
-				country_or_region: td.eq(0).text().trim(),
+				country_or_region: td.eq(0).text().trim().replace(' (including Wuhan)', '').replace(' Region', ''),
 				cases: td.eq(1).text().trim(),
 				deaths: td.eq(2).text().trim(),
 				notes: td.eq(3).text().trim(),
@@ -57,7 +61,15 @@ class Scraper {
 			});
 		});
 		
-		return data;
+		return Promise.all(data.map((item) => {
+			return this.geocode(item.country_or_region)
+			.then(({ lat, lon }) => {
+				return {
+					...item,
+					coordinates: { lat, lon }
+				}
+			})
+		}));
 	}
 	
 	async getTimeline() {
@@ -80,6 +92,14 @@ class Scraper {
 				source: $(li).find('a').attr('href')
 			}))
 		}));
+	}
+	
+	async geocode(address) {
+		const results = await geocoder.geocode(address);
+		return {
+			lat: results[0].latitude,
+			lon: results[0].longitude,
+		};
 	}
 }
 

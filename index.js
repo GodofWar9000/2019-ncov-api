@@ -1,33 +1,29 @@
-const fastify = require('fastify')({ logger: true });
-const fastifyCors = require('fastify-cors');
+const express = require('express');
+const apicache = require('apicache');
+const cors = require('cors');
 const Scraper = require('./Scraper');
 
 const PORT = process.env.PORT || 3000;
 
-fastify.register(fastifyCors, { 
+const app = express();
+const cache = apicache.middleware;
+app.use(cache('30 minutes'));
+app.use(cors({
 	origin: process.env.ORIGIN || 'http://localhost:8080'
-});
+}));
 
-fastify.get('/api/confirmed-cases', async (request) => {
+app.get('/api/confirmed-cases', async (req, res) => {
 	const scraper = new Scraper();
 	const data = await scraper.getConfirmedCases();
-	return data;
+	return res.json(data);
 });
 
-fastify.get('/api/timeline', async (request) => {
+app.get('/api/timeline', async (req, res) => {
 	const scraper = new Scraper();
 	const data = await scraper.getTimeline();
-	return data;
+	return res.json(data);
 });
 
-const start = async () => {
-	try {
-		await fastify.listen(PORT);
-		fastify.log.info(`server listening on ${fastify.server.address().port}`);
-	} catch (err) {
-		fastify.log.error(err);
-		process.exit(1);
-	}
-}
-
-start();
+app.listen(PORT, () => {
+	console.log(`App listening on port ${PORT}!`);
+});

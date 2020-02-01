@@ -1,7 +1,12 @@
 const fastify = require('fastify')({ logger: true });
+const fastifyCors = require('fastify-cors');
 const Scraper = require('./Scraper');
 
 const PORT = process.env.PORT || 3000;
+
+fastify.register(fastifyCors, { 
+	origin: process.env.ORIGIN || 'http://localhost:8080'
+});
 
 fastify.get('/api/confirmed-cases', async (request) => {
 	const scraper = new Scraper();

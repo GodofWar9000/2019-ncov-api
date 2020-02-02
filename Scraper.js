@@ -8,15 +8,14 @@ const geocoder = NodeGeocoder({
 const stringToNumber = str => +str.replace(/,/g, '');
 
 class Scraper {
-	constructor() {
-		// this.confirmedCasesUrl = 'https://bnonews.com/index.php/2020/01/the-latest-coronavirus-cases/';
-		this.timelineUrl = 'https://bnonews.com/index.php/2020/01/timeline-coronavirus-epidemic/';
-		this.confirmedCasesUrl = 'https://www.worldometers.info/coronavirus/';
+	async getHTML(url) {
+		const res = await axios(url);
+		return cheerio.load(res.data);
 	}
-	
+
 	async getTimeline() {
-		const res = await axios(this.timelineUrl);
-		const $ = cheerio.load(res.data);
+		const url = 'https://bnonews.com/index.php/2020/01/timeline-coronavirus-epidemic/';
+		const $ = await this.getHTML(url);
 		const timelineDiv = $('#mvp-content-main');
 		
 		return timelineDiv
@@ -37,16 +36,18 @@ class Scraper {
 	}
 
 	async getConfirmedCases() {
-		const res = await axios(this.confirmedCasesUrl);
-		const $ = cheerio.load(res.data);
+		const url = 'https://www.worldometers.info/coronavirus/';
+		const $ = await this.getHTML(url);
 		const data = [];
 		$('#table3 tbody tr').each((idx, el) => {
 			const td = $(el).children('td');
+			const deathIdx = td.length === 5 ? 3 : 2;
+			const regionIdx = td.length === 5 ? 4 : 3;
 			const obj = {
 				country: td.eq(0).text().trim(),
 				cases: +td.eq(1).text().trim().replace(/,/g, ''),
-				deaths: +td.eq(2).text().trim().replace(/,/g, ''),
-				region: td.eq(3).text().trim(),
+				deaths: +td.eq(deathIdx).text().trim().replace(/,/g, ''),
+				region: td.eq(regionIdx).text().trim(),
 			}
 			data.push(obj);
 		});
@@ -60,6 +61,38 @@ class Scraper {
 				}
 			})
 		}));
+	}
+
+	async getMainlandChinaDailyReport() {
+		const url = 'https://en.wikipedia.org/wiki/2019%E2%80%9320_Wuhan_coronavirus_outbreak';
+		const $ = await this.getHTML(url);
+		const data = [];
+		$('.barbox table tbody tr').each((idx, el) => {
+			if (idx === 0 || idx === 1) return;
+			const td = $(el).children('td');
+			data.push({
+				date: td.eq(0).text().trim(),
+				count: td.eq(2).text().trim()
+			});
+		});
+		return data;
+	}
+
+	async getDailyDeaths() {
+		const url = 'https://www.worldometers.info/coronavirus/coronavirus-death-toll/';
+		const $ = await this.getHTML(url);
+		const data = [];
+		$('h3:contains("Daily Deaths of Novel Coronavirus (2019-nCoV)")')
+		.next()
+		.find('tbody tr')
+		.each((_, el) => {
+			const td = $(el).children('td');
+			data.push({
+				date: td.eq(0).text().trim(),
+				count: +td.eq(1).text().trim().replace(/,/g, '')
+			});
+		});
+		return data.reverse();
 	}
 	
 	async geocode(address) {

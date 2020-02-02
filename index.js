@@ -18,6 +18,18 @@ app.get('/api/confirmed-cases', async (req, res) => {
 	return res.json(data);
 });
 
+app.get('/api/mainland-china-daily-report', async (req, res) => {
+	const scraper = new Scraper();
+	const data = await scraper.getMainlandChinaDailyReport();
+	return res.json(data);
+});
+
+app.get('/api/daily-deaths', async (req, res) => {
+	const scraper = new Scraper();
+	const data = await scraper.getDailyDeaths();
+	return res.json(data);
+});
+
 app.get('/api/timeline', async (req, res) => {
 	const scraper = new Scraper();
 	const data = await scraper.getTimeline();

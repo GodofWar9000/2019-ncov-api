@@ -1,9 +1,11 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
+const dotenv = require('dotenv');
 const NodeGeocoder = require('node-geocoder');
 const geocoder = NodeGeocoder({
 	provider: 'openstreetmap'
 });
+dotenv.config();
 
 const stringToNumber = str => +str.replace(/,/g, '');
 
@@ -12,7 +14,7 @@ class Scraper {
 		const res = await axios(url);
 		return cheerio.load(res.data);
 	}
-
+	
 	async getTimeline() {
 		const url = 'https://bnonews.com/index.php/2020/01/timeline-coronavirus-epidemic/';
 		const $ = await this.getHTML(url);
@@ -34,7 +36,7 @@ class Scraper {
 			}))
 		}));
 	}
-
+	
 	async getConfirmedCases() {
 		const url = 'https://www.worldometers.info/coronavirus/';
 		const $ = await this.getHTML(url);
@@ -62,7 +64,7 @@ class Scraper {
 			})
 		}));
 	}
-
+	
 	async getMainlandChinaDailyReport() {
 		const url = 'https://en.wikipedia.org/wiki/2019%E2%80%9320_Wuhan_coronavirus_outbreak';
 		const $ = await this.getHTML(url);
@@ -77,7 +79,7 @@ class Scraper {
 		});
 		return data;
 	}
-
+	
 	async getDailyDeaths() {
 		const url = 'https://www.worldometers.info/coronavirus/coronavirus-death-toll/';
 		const $ = await this.getHTML(url);

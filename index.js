@@ -8,12 +8,11 @@ const PORT = process.env.PORT;
 
 const app = express();
 const cache = apicache.middleware;
-app.use(cache('10 minutes'));
 app.use(cors({
 	origin: process.env.CORS_ORIGIN
 }));
 
-app.get('/api/confirmed-cases', async (req, res) => {
+app.get('/api/confirmed-cases', cache('10 minutes'), async (req, res) => {
 	const scraper = new Scraper();
 	const data = await scraper.getConfirmedCases();
 	return res.json(data);

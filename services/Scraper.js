@@ -7,8 +7,6 @@ const geocoder = NodeGeocoder({
 });
 dotenv.config();
 
-const stringToNumber = str => +str.replace(/,/g, '');
-
 class Scraper {
 	async getHTML(url) {
 		const res = await axios(url);

@@ -126,6 +126,7 @@ class Scraper {
 				count: td
 					.eq(2)
 					.text()
+					.replace( /\(.*?\)/, '' )
 					.trim()
 			});
 		});

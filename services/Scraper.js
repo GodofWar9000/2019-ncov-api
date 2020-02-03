@@ -137,7 +137,30 @@ class Scraper {
 			'https://www.worldometers.info/coronavirus/coronavirus-death-toll/';
 		const $ = await this.getHTML(url);
 		const data = [];
-		$('h3:contains("Daily Deaths of Novel Coronavirus (2019-nCoV)")')
+
+		const dailyDeathRef = $('h3:contains("Daily Deaths of Novel Coronavirus (2019-nCoV)")');
+
+		dailyDeathRef
+			.next()
+			.find('thead tr')
+			.each((idx, el) => {
+				if (idx === 0) return;
+
+				const td = $(el).children('td');
+				data.push({
+					date: td
+						.eq(0)
+						.text()
+						.trim(),
+					count: +td
+						.eq(1)
+						.text()
+						.trim()
+						.replace(/,/g, '')
+				});
+			});
+		
+			dailyDeathRef
 			.next()
 			.find('tbody tr')
 			.each((_, el) => {

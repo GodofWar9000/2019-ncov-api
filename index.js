@@ -1,5 +1,4 @@
 const express = require('express');
-const apicache = require('apicache');
 const cors = require('cors');
 const morgan = require('morgan');
 const fs = require('fs');
@@ -10,7 +9,6 @@ const Twitter = require('./services/Twitter');
 const PORT = process.env.PORT;
 
 const app = express();
-const cache = apicache.middleware;
 app.use(
 	cors({
 		origin: process.env.CORS_ORIGIN
@@ -25,7 +23,7 @@ const accessLogStream = fs.createWriteStream(
 // setup the logger
 app.use(morgan('combined', { stream: accessLogStream }));
 
-app.get('/api/confirmed-cases', cache('10 minutes'), async (req, res) => {
+app.get('/api/confirmed-cases', async (req, res) => {
 	const scraper = new Scraper();
 	const data = await scraper.getConfirmedCases();
 	return res.json(data);

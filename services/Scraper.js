@@ -6,6 +6,7 @@ const geocoder = NodeGeocoder({
 	provider: 'openstreetmap'
 });
 dotenv.config();
+const mappedCoordinates = {};
 
 class Scraper {
 	async getHTML(url) {
@@ -157,11 +158,18 @@ class Scraper {
 	}
 
 	async geocode(address) {
+		if (mappedCoordinates[address]) {
+			return mappedCoordinates[address];
+		}
+
 		const results = await geocoder.geocode(address);
-		return {
+		const coords = {
 			lat: results[0].latitude,
 			lon: results[0].longitude
 		};
+		// Set to mappedCoordinates so we don't have to query again
+		mappedCoordinates[address] = coords;
+		return coords;
 	}
 }
 

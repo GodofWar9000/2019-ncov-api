@@ -55,6 +55,8 @@ app.get('/api/timeline', async (req, res) => {
 	return res.json(data);
 });
 
+app.get('*', (req, res) => res.send('Page Not found'));
+
 app.listen(PORT, () => {
 	console.log(`App listening on port ${PORT}!`);
 });

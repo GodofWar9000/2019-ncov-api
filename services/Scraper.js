@@ -20,7 +20,7 @@ class Scraper {
 		const $ = await this.getHTML(url);
 		const timelineDiv = $('#mvp-content-main');
 
-		return timelineDiv
+		const data = timelineDiv
 			.find('h4')
 			.toArray()
 			.map((h4, h4Idx) => ({
@@ -42,6 +42,43 @@ class Scraper {
 							.attr('href')
 					}))
 			}));
+		const latest = await this.getTimelineLatest();
+		return [...latest, ...data];
+	}
+
+	async getTimelineLatest() {
+		const url =
+			'https://bnonews.com/index.php/2020/02/the-latest-coronavirus-cases/';
+		const $ = await this.getHTML(url);
+		const data = [];
+		$('h2:contains("Timeline (GMT)")')
+			.nextUntil('h3')
+			.each((idx, el) => {
+				if (el.name === 'h4') {
+					const obj = {
+						date: $(el)
+							.text()
+							.trim(),
+						time: $(el)
+							.next()
+							.children('li')
+							.toArray()
+							.map(li => ({
+								time_and_description: $(li)
+									.text()
+									.trim()
+									.replace(' (Source)', ''),
+								source: $(li)
+									.find('a')
+									.attr('href')
+							}))
+					};
+
+					data.push(obj);
+				}
+			});
+
+		return data;
 	}
 
 	async getConfirmedCases() {
@@ -126,7 +163,7 @@ class Scraper {
 				count: td
 					.eq(2)
 					.text()
-					.replace( /\(.*?\)/, '' )
+					.replace(/\(.*?\)/, '')
 					.trim()
 			});
 		});
@@ -139,7 +176,9 @@ class Scraper {
 		const $ = await this.getHTML(url);
 		const data = [];
 
-		const dailyDeathRef = $('h3:contains("Daily Deaths of Novel Coronavirus (2019-nCoV)")');
+		const dailyDeathRef = $(
+			'h3:contains("Daily Deaths of Novel Coronavirus (2019-nCoV)")'
+		);
 
 		dailyDeathRef
 			.next()
@@ -160,8 +199,8 @@ class Scraper {
 						.replace(/,/g, '')
 				});
 			});
-		
-			dailyDeathRef
+
+		dailyDeathRef
 			.next()
 			.find('tbody tr')
 			.each((_, el) => {

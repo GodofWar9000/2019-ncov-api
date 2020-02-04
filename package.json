@@ -13,6 +13,7 @@
   "author": "Robert Soriano",
   "license": "ISC",
   "dependencies": {
+    "apicache": "^1.5.3",
     "axios": "^0.19.2",
     "cheerio": "^1.0.0-rc.3",
     "cors": "^2.8.5",

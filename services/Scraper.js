@@ -15,9 +15,9 @@ class Scraper {
 	}
 
 	async getTimeline() {
-		const url =
-			'https://bnonews.com/index.php/2020/01/timeline-coronavirus-epidemic/';
-		const $ = await this.getHTML(url);
+		const $ = await this.getHTML(
+			'https://bnonews.com/index.php/2020/01/timeline-coronavirus-epidemic/'
+		);
 		const timelineDiv = $('#mvp-content-main');
 
 		const data = timelineDiv
@@ -43,13 +43,29 @@ class Scraper {
 					}))
 			}));
 		const latest = await this.getTimelineLatest();
-		return [...latest, ...data];
+		return [...latest, ...data].map(item => {
+			return {
+				...item,
+				time: item.time
+					.filter(
+						i => !i.time_and_description.includes('Total at the end of the day')
+					)
+					.map(i => ({
+						time: i.time_and_description.slice(0, 5),
+						description: i.time_and_description.replace(
+							`${i.time_and_description.slice(0, 5)}: `,
+							''
+						),
+						source: i.source
+					}))
+			};
+		});
 	}
 
 	async getTimelineLatest() {
-		const url =
-			'https://bnonews.com/index.php/2020/02/the-latest-coronavirus-cases/';
-		const $ = await this.getHTML(url);
+		const $ = await this.getHTML(
+			'https://bnonews.com/index.php/2020/02/the-latest-coronavirus-cases/'
+		);
 		const data = [];
 		$('h2:contains("Timeline (GMT)")')
 			.nextUntil('h3')
@@ -82,9 +98,9 @@ class Scraper {
 	}
 
 	async getConfirmedCases() {
-		const url =
-			'https://en.wikipedia.org/wiki/2019%E2%80%9320_Wuhan_coronavirus_outbreak';
-		const $ = await this.getHTML(url);
+		const $ = await this.getHTML(
+			'https://en.wikipedia.org/wiki/2019%E2%80%9320_Wuhan_coronavirus_outbreak'
+		);
 		const data = [];
 		const sourceTable = $('.wikitable')
 			.first()
@@ -148,9 +164,9 @@ class Scraper {
 	}
 
 	async getMainlandChinaDailyReport() {
-		const url =
-			'https://en.wikipedia.org/wiki/2019%E2%80%9320_Wuhan_coronavirus_outbreak';
-		const $ = await this.getHTML(url);
+		const $ = await this.getHTML(
+			'https://en.wikipedia.org/wiki/2019%E2%80%9320_Wuhan_coronavirus_outbreak'
+		);
 		const data = [];
 		$('.barbox table tbody tr').each((idx, el) => {
 			if (idx === 0 || idx === 1) return;
@@ -171,9 +187,9 @@ class Scraper {
 	}
 
 	async getDailyDeaths() {
-		const url =
-			'https://www.worldometers.info/coronavirus/coronavirus-death-toll/';
-		const $ = await this.getHTML(url);
+		const $ = await this.getHTML(
+			'https://www.worldometers.info/coronavirus/coronavirus-death-toll/'
+		);
 		const data = [];
 
 		const dailyDeathRef = $(

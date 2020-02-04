@@ -278,7 +278,13 @@ class Scraper {
 					})
 				);
 			}
-			return Promise.all(sheets)
+			const data = await Promise.all(sheets);
+			return data.map((item) => ({
+				...item,
+				total_confirmed: item.data.reduce((a, b) => +a + +b.Confirmed, 0),
+				total_deaths: item.data.reduce((a, b) => +a + +b.Deaths, 0),
+				total_recovered: item.data.reduce((a, b) => +a + +b.Recovered, 0)
+			}));
 		} catch (e) {
 			return null;
 		}

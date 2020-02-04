@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const fs = require('fs');
 const path = require('path');
 const apicache = require('apicache');
+const compression = require('compression');
 const Scraper = require('./services/Scraper');
 const Twitter = require('./services/Twitter');
 
@@ -16,6 +17,7 @@ app.use(
 		origin: process.env.CORS_ORIGIN
 	})
 );
+app.use(compression());
 // create a write stream (in append mode)
 const accessLogStream = fs.createWriteStream(
 	path.join(__dirname, 'access.log'),

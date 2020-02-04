@@ -3,12 +3,14 @@ const cors = require('cors');
 const morgan = require('morgan');
 const fs = require('fs');
 const path = require('path');
+const apicache = require('apicache');
 const Scraper = require('./services/Scraper');
 const Twitter = require('./services/Twitter');
 
 const PORT = process.env.PORT;
 
 const app = express();
+const cache = apicache.middleware;
 app.use(
 	cors({
 		origin: process.env.CORS_ORIGIN
@@ -47,7 +49,7 @@ app.get('/api/tweets', async (req, res) => {
 	return res.json(data);
 });
 
-app.get('/api/timeline', async (req, res) => {
+app.get('/api/timeline', cache('5 hours'), async (req, res) => {
 	const scraper = new Scraper();
 	const data = await scraper.getTimeline();
 	return res.json(data);

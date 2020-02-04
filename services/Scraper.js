@@ -2,11 +2,16 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const dotenv = require('dotenv');
 const NodeGeocoder = require('node-geocoder');
+const { GoogleSpreadsheet } = require('google-spreadsheet');
 const geocoder = NodeGeocoder({
 	provider: 'openstreetmap'
 });
 dotenv.config();
 const mappedCoordinates = {};
+
+// Novel Coronavirus (2019-nCoV) Cases, provided by JHU CSSE
+const doc = new GoogleSpreadsheet('1wQVypefm946ch4XDp37uZ-wartW4V7ILdg-qYiDXUHM');
+doc.useApiKey(process.env.GOOGLE_API_KEY);
 
 class Scraper {
 	async getHTML(url) {
@@ -234,6 +239,49 @@ class Scraper {
 				});
 			});
 		return data.reverse();
+	}
+
+	async getCases() {
+		try {
+			await doc.loadInfo();
+
+			// Get unique indexes
+			const indexes = [];
+			for (var x=0; x<doc.sheetsByIndex.length; x++) {
+				const exists = indexes.filter(i => {
+					return doc.sheetsByIndex[x].title.includes(doc.sheetsByIndex[i].title.split('_')[0]);
+				});
+				if (!exists.length) {
+					indexes.push(x);
+				}
+				if (indexes.length === 6) break;
+			}
+
+
+			// Get rows per sheet
+			const sheets = [];
+			for(var x=0; x<indexes.length; x++) {
+				const datetime = doc.sheetsByIndex[indexes[x]].title;
+				sheets.push(
+					doc.sheetsByIndex[indexes[x]].getRows()
+					.then((rows) => {
+						return {
+							datetime,
+							data: rows.map(i => ({
+								'Province/State': i['Province/State'],
+								'Country/Region': i['Country/Region'],
+								'Confirmed': i['Confirmed'],
+								'Deaths': i['Deaths'],
+								'Recovered': i['Recovered']
+							}))
+						}
+					})
+				);
+			}
+			return Promise.all(sheets)
+		} catch (e) {
+			return null;
+		}
 	}
 
 	async geocode(address) {

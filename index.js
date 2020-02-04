@@ -27,6 +27,12 @@ const accessLogStream = fs.createWriteStream(
 // setup the logger
 app.use(morgan('combined', { stream: accessLogStream }));
 
+app.get('/api/cases', cache('1 hour'), async (req, res) => {
+	const scraper = new Scraper();
+	const data = await scraper.getCases();
+	return res.json(data);
+});
+
 app.get('/api/confirmed-cases', async (req, res) => {
 	const scraper = new Scraper();
 	const data = await scraper.getConfirmedCases();

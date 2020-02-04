@@ -261,12 +261,12 @@ class Scraper {
 			// Get rows per sheet
 			const sheets = [];
 			for(var x=0; x<indexes.length; x++) {
-				const datetime = doc.sheetsByIndex[indexes[x]].title;
+				const date = doc.sheetsByIndex[indexes[x]].title.split('_')[0];
 				sheets.push(
 					doc.sheetsByIndex[indexes[x]].getRows()
 					.then((rows) => {
 						return {
-							datetime,
+							date,
 							data: rows.map(i => ({
 								'Province/State': i['Province/State'],
 								'Country/Region': i['Country/Region'],

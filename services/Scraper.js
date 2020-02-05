@@ -167,6 +167,7 @@ class Scraper {
 					(a, b) => a + b.dates[b.dates.length - 1].death,
 					0
 				),
+				last_update: new Date(),
 				data
 			};
 		} catch (e) {

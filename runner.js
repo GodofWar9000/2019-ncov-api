@@ -15,6 +15,6 @@ async function run() {
 }
 
 // Run every 30 minutes
-cron.schedule('0 */30 * * * *', () => {
+cron.schedule('*/30 * * * *', () => {
 	run();
 });

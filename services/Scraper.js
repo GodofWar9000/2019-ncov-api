@@ -5,9 +5,9 @@ const { GoogleSpreadsheet } = require('google-spreadsheet');
 dotenv.config();
 
 // Novel Coronavirus (2019-nCoV) Cases, provided by JHU CSSE
-const doc = new GoogleSpreadsheet(
-	'1UF2pSkFTURko2OvfHWWlFpDFAr1UxCBA4JLwlSP6KFo'
-);
+// Load google sheet
+const sheetId = '1UF2pSkFTURko2OvfHWWlFpDFAr1UxCBA4JLwlSP6KFo';
+const doc = new GoogleSpreadsheet(sheetId);
 doc.useApiKey(process.env.GOOGLE_API_KEY);
 
 class Scraper {

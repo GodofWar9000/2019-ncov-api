@@ -35,6 +35,7 @@ app.get('/api/cases', async (req, res) => {
 
 	const scraper = new Scraper();
 	const data = await scraper.fetchTimeSeries();
+	await fs.promises.writeFile('./data.json', JSON.stringify(data));
 	return res.json(data);
 });
 

@@ -27,27 +27,14 @@ const accessLogStream = fs.createWriteStream(
 // setup the logger
 app.use(morgan('combined', { stream: accessLogStream }));
 
-app.get('/api/cases', cache('1 hour'), async (req, res) => {
-	const scraper = new Scraper();
-	const data = await scraper.getCases();
-	return res.json(data);
-});
+app.get('/api/cases', async (req, res) => {
+	if (fs.existsSync('./data.json')) {
+		const data = JSON.parse(await fs.promises.readFile('./data.json', 'utf8'));
+		return res.json(data);
+	}
 
-app.get('/api/confirmed-cases', async (req, res) => {
 	const scraper = new Scraper();
-	const data = await scraper.getConfirmedCases();
-	return res.json(data);
-});
-
-app.get('/api/mainland-china-daily-report', async (req, res) => {
-	const scraper = new Scraper();
-	const data = await scraper.getMainlandChinaDailyReport();
-	return res.json(data);
-});
-
-app.get('/api/daily-deaths', async (req, res) => {
-	const scraper = new Scraper();
-	const data = await scraper.getDailyDeaths();
+	const data = await scraper.fetchTimeSeries();
 	return res.json(data);
 });
 

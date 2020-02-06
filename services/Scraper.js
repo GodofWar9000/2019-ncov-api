@@ -142,12 +142,12 @@ class Scraper {
 						confirmed: +row[header] || 0,
 						recovered:
 							+recoveredSheetRows.find(
-								i => i.Lat === row.Lat && i.Long === row.Long
-							)[header] || 0,
+								i => i.Lat.trim() === row.Lat.trim() && i.Long.trim() === row.Long.trim()
+							)[header.trim()] || 0,
 						death:
-							+deathSheetRows.find(
-								i => i.Lat === row.Lat && i.Long === row.Long
-							)[header] || 0
+						+deathSheetRows.find(
+							i => i.Lat.trim() === row.Lat.trim() && i.Long.trim() === row.Long.trim()
+						)[header.trim()] || 0,
 					});
 				});
 

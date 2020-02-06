@@ -139,7 +139,7 @@ class Scraper {
 				headers.slice(5).forEach(header => {
 					obj.dates.push({
 						date: header.split(' ')[0],
-						confirmed: +row[header],
+						confirmed: +row[header] || 0,
 						recovered:
 							+recoveredSheetRows.find(
 								i => i.Lat === row.Lat && i.Long === row.Long

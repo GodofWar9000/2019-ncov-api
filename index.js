@@ -27,7 +27,7 @@ const accessLogStream = fs.createWriteStream(
 // setup the logger
 app.use(morgan('combined', { stream: accessLogStream }));
 
-app.get('/api/cases', async (req, res) => {
+app.get('/api/cases', cache('15 minutes'), async (req, res) => {
 	if (fs.existsSync('./data.json')) {
 		const data = JSON.parse(await fs.promises.readFile('./data.json', 'utf8'));
 		return res.json(data);
@@ -39,7 +39,7 @@ app.get('/api/cases', async (req, res) => {
 	return res.json(data);
 });
 
-app.get('/api/tweets', async (req, res) => {
+app.get('/api/tweets', cache('5 minutes'), async (req, res) => {
 	const twit = new Twitter();
 	const data = await twit.getTweets(req.query);
 	return res.json(data);

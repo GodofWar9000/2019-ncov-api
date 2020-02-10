@@ -109,7 +109,7 @@ class Scraper {
       const data = [];
 
       // Load confirmed sheets
-      const confirmedSheet = doc.sheetsByIndex[0];
+      const confirmedSheet = doc.sheetsByIndex[1];
       const confirmedSheetRows = await confirmedSheet.getRows();
       await confirmedSheet.loadHeaderRow();
 
@@ -124,12 +124,12 @@ class Scraper {
       });
 
       // Load recovered sheet
-      const recoveredSheet = doc.sheetsByIndex[1];
+      const recoveredSheet = doc.sheetsByIndex[2];
       const recoveredSheetRows = await recoveredSheet.getRows();
       await recoveredSheet.loadHeaderRow();
 
       // Load death sheet
-      const deathSheet = doc.sheetsByIndex[2];
+      const deathSheet = doc.sheetsByIndex[3];
       const deathSheetRows = await deathSheet.getRows();
       await deathSheet.loadHeaderRow();
 

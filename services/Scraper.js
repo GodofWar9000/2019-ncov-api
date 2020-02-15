@@ -7,7 +7,7 @@ const csv = require('csvtojson');
 class Scraper {
   constructor() {
     this.timeSeriesURL =
-      'https://raw.githubusercontent.com/CSSEGISandData/2019-nCoV/master/time_series';
+      'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series';
   }
 
   async getHTML(url) {
@@ -99,23 +99,13 @@ class Scraper {
   }
 
   async fetchTimeSeries() {
-    const formatDate = date => moment(new Date(date)).format('M/D/YYYY');
-    const roundOffCoord = coord => parseFloat(coord.trim()).toFixed(5);
+    // const roundOffCoord = coord => parseFloat(coord.trim()).toFixed(5);
 
     const data = [];
 
     // Load confirmed cases
     const confirmedRows = await this.getConfirmedCases();
-    const confirmedHeaders = Object.keys(confirmedRows[0]);
-    const headers = [...confirmedHeaders.slice(0, 4)];
-    confirmedHeaders.slice(4).forEach(item => {
-      const idx = headers.map(i => formatDate(i)).indexOf(formatDate(item));
-      if (idx === -1) {
-        headers.push(formatDate(item));
-      } else {
-        headers[idx] = formatDate(item);
-      }
-    });
+    const headers = Object.keys(confirmedRows[0]);
 
     // Load recovered sheet
     const recoveredRows = await this.getRecovered();
@@ -130,30 +120,21 @@ class Scraper {
       });
       obj.dates = [];
       headers.slice(4).forEach(header => {
-        const confirmedHeaders = Object.keys(confirmedRows[0]).filter(
-          i => formatDate(i) === header
-        );
-        const recoveredHeaders = Object.keys(recoveredRows[0]).filter(
-          i => formatDate(i) === header
-        );
-        const deathHeaders = Object.keys(deathRows[0]).filter(
-          i => formatDate(i) === header
-        );
         obj.dates.push({
-          date: header.split(' ')[0],
-          confirmed: +row[confirmedHeaders[confirmedHeaders.length - 1]] || 0,
+          date: header,
+          confirmed: +row[header] || 0,
           recovered:
             +recoveredRows.find(
               i =>
-                roundOffCoord(i.Lat) === roundOffCoord(row.Lat) &&
-                roundOffCoord(i.Long) === roundOffCoord(row.Long)
-            )[recoveredHeaders[recoveredHeaders.length - 1]] || 0,
+                i.Lat.trim() === row.Lat.trim() &&
+                i.Long.trim() === row.Long.trim()
+            )[header] || 0,
           death:
-            +deathRows.find(
-              i =>
-                roundOffCoord(i.Lat) === roundOffCoord(row.Lat) &&
-                roundOffCoord(i.Long) === roundOffCoord(row.Long)
-            )[deathHeaders[deathHeaders.length - 1]] || 0
+          +deathRows.find(
+            i =>
+              i.Lat.trim() === row.Lat.trim() &&
+              i.Long.trim() === row.Long.trim()
+          )[header] || 0,
         });
       });
 
@@ -198,19 +179,19 @@ class Scraper {
 
   getConfirmedCases() {
     return this.parseCSV(
-      `${this.timeSeriesURL}/time_series_2019-ncov-Confirmed.csv`
+      `${this.timeSeriesURL}/time_series_19-covid-Confirmed.csv`
     );
   }
 
   getRecovered() {
     return this.parseCSV(
-      `${this.timeSeriesURL}/time_series_2019-ncov-Recovered.csv`
+      `${this.timeSeriesURL}/time_series_19-covid-Recovered.csv`
     );
   }
 
   getDeaths() {
     return this.parseCSV(
-      `${this.timeSeriesURL}/time_series_2019-ncov-Deaths.csv`
+      `${this.timeSeriesURL}/time_series_19-covid-Deaths.csv`
     );
   }
 }

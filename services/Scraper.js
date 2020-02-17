@@ -99,7 +99,7 @@ class Scraper {
   }
 
   async fetchTimeSeries() {
-    // const roundOffCoord = coord => parseFloat(coord.trim()).toFixed(5);
+    const roundOffCoord = coord => parseFloat(coord.trim()).toFixed(5);
 
     const data = [];
 
@@ -126,8 +126,8 @@ class Scraper {
           recovered:
             +recoveredRows.find(
               i =>
-                i.Lat.trim() === row.Lat.trim() &&
-                i.Long.trim() === row.Long.trim()
+              roundOffCoord(i.Lat.trim()) === roundOffCoord(row.Lat.trim()) &&
+              roundOffCoord(i.Long.trim()) === roundOffCoord(row.Long.trim())
             )[header] || 0,
           death:
           +deathRows.find(

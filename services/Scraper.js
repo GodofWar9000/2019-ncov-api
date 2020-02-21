@@ -1,6 +1,5 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
-const moment = require('moment');
 const request = require('request');
 const csv = require('csvtojson');
 
@@ -10,9 +9,13 @@ class Scraper {
       'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series';
   }
 
-  async getHTML(url) {
-    const res = await axios(url);
-    return cheerio.load(res.data);
+  getHTML(url) {
+    return new Promise((resolve, reject) => {
+      request.get(url, (error, _, body) => {
+        if (error) return reject(error);
+        resolve(cheerio.load(body));
+      });
+    });
   }
 
   async getTimeline() {

@@ -1,4 +1,3 @@
-const axios = require('axios');
 const cheerio = require('cheerio');
 const request = require('request');
 const csv = require('csvtojson');

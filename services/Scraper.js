@@ -115,13 +115,21 @@ class Scraper {
     // Load recovered sheet
     const deathRows = await this.getDeaths();
 
-    confirmedRows.forEach(row => {
+    confirmedRows.forEach((row) => {
       const obj = {};
       headers.slice(0, 4).forEach(header => {
         obj[header] = row[header];
       });
       obj.dates = [];
-      headers.slice(4).forEach(header => {
+
+      headers.slice(4).forEach((header, idx) => {
+      
+      // Skip row when it's empty
+      if (row[header] === '') {
+        confirmedRows.splice(idx, 1);
+        return;
+      }
+
         obj.dates.push({
           date: header,
           confirmed: +row[header] || 0,

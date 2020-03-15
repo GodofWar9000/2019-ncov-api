@@ -46,6 +46,12 @@ app.get('/api/timeline', cache('5 hours'), async (req, res) => {
   return res.json(data);
 });
 
+app.get('/api/fatality-rate', cache('5 hours'), async (req, res) => {
+  const scraper = new Scraper();
+  const data = await scraper.getFatalityRate();
+  return res.json(data);
+});
+
 app.get('*', (req, res) => res.send('Page Not found'));
 
 app.listen(PORT, () => {

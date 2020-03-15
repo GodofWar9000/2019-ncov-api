@@ -204,6 +204,51 @@ class Scraper {
       `${this.timeSeriesURL}/time_series_19-covid-Deaths.csv`
     );
   }
+
+  async getFatalityRate() {
+    const url = 'https://www.worldometers.info/coronavirus/coronavirus-age-sex-demographics/';
+
+    const $ = await this.getHTML(url);
+
+    const byAgeRows = $('h4:contains("COVID-19 Fatality Rate by AGE:")').next().next().find('table tbody tr');
+    const byAge = [];
+    $(byAgeRows).each((idx, el) => {
+      if (idx === 0) return;
+
+      byAge.push({
+        age: $(el).children('td').eq(0).text().trim(),
+        rate: $(el).children('td').eq(2).text().trim(),
+      });
+    });
+
+    const bySexRows = $('h4:contains("COVID-19 Fatality Rate by SEX:")').next().next().find('table tbody tr');
+    const bySex = [];
+    $(bySexRows).each((idx, el) => {
+      if (idx === 0) return;
+
+      bySex.push({
+        sex: $(el).children('td').eq(0).text().trim(),
+        rate: $(el).children('td').eq(1).text().trim(),
+      });
+    });
+
+    const byComorbidityRows = $('h4:contains("COVID-19 Fatality Rate by COMORBIDITY:")').next().next().find('table tbody tr');
+    const byComorbidity = [];
+    $(byComorbidityRows).each((idx, el) => {
+      if (idx === 0) return;
+
+      byComorbidity.push({
+        preExistingCondition: $(el).children('td').eq(0).text().trim(),
+        rate: $(el).children('td').eq(2).text().trim(),
+      });
+    });
+
+    return {
+      byAge,
+      bySex,
+      byComorbidity
+    };
+  }
 }
 
 module.exports = Scraper;

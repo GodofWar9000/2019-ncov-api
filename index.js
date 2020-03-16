@@ -11,6 +11,8 @@ const Twitter = require('./services/Twitter');
 
 const PORT = process.env.PORT;
 
+const scraper = new Scraper();
+
 const app = express();
 const cache = apicache.middleware;
 app.use(
@@ -29,7 +31,6 @@ const accessLogStream = fs.createWriteStream(
 app.use(morgan('combined', { stream: accessLogStream }));
 
 app.get('/api/cases', cache('1 hour'), async (req, res) => {
-  const scraper = new Scraper();
   const data = await scraper.fetchTimeSeries();
   return res.json(data);
 });
@@ -41,13 +42,11 @@ app.get('/api/tweets', cache('5 minutes'), async (req, res) => {
 });
 
 app.get('/api/timeline', cache('5 hours'), async (req, res) => {
-  const scraper = new Scraper();
   const data = await scraper.getTimeline();
   return res.json(data);
 });
 
 app.get('/api/fatality-rate', cache('5 hours'), async (req, res) => {
-  const scraper = new Scraper();
   const data = await scraper.getFatalityRate();
   return res.json(data);
 });

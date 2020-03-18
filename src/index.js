@@ -22,7 +22,7 @@ app.use(morgan('combined'));
 
 app.use('/api', routes);
 
-app.get('*', (req, res) => res.send('Page Not found'));
+app.get('*', (_, res) => res.send('Page Not found'));
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}!`);

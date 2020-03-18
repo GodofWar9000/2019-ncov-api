@@ -123,7 +123,6 @@ class Scraper {
       obj.dates = [];
 
       headers.slice(4).forEach((header, idx) => {
-      
       // Skip row when it's empty
       if (row[header] === '') {
         confirmedRows.splice(idx, 1);
@@ -136,14 +135,14 @@ class Scraper {
           recovered:
             +recoveredRows.find(
               i =>
-              roundOffCoord(i.Lat.trim()) === roundOffCoord(row.Lat.trim()) &&
-              roundOffCoord(i.Long.trim()) === roundOffCoord(row.Long.trim())
+              roundOffCoord(i.Lat) === roundOffCoord(row.Lat) &&
+              roundOffCoord(i.Long) === roundOffCoord(row.Long)
             )[header] || 0,
           death:
           +deathRows.find(
             i =>
-              i.Lat.trim() === row.Lat.trim() &&
-              i.Long.trim() === row.Long.trim()
+            roundOffCoord(i.Lat) === roundOffCoord(row.Lat) &&
+            roundOffCoord(i.Long) === roundOffCoord(row.Long)
           )[header] || 0,
         });
       });

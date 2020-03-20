@@ -1,12 +1,12 @@
 # 2019-nCoV API
 
-> Coronavirus (2019-nCoV) API
+> Coronavirus (COVID-19) API
 
 Frontend can be found here [2019-ncov-frontend](https://github.com/sorxrob/2019-ncov-frontend).
 
 ## Build Setup
 
-``` bash
+```bash
 # set consumer keys and port
 $ cp .env.example .env
 
@@ -19,3 +19,9 @@ $ npm start
 # start cron
 $ node runner
 ```
+
+## License & copyright
+
+© Robert C Soriano
+
+Licensed under the [MIT License](LICENSE).

@@ -7,23 +7,25 @@ const Twitter = require('./services/Twitter');
 const scraper = new Scraper();
 const cache = apicache.middleware;
 
-router.get('/cases', cache('1 hour'), async (req, res) => {
+app.use(cache('5 minutes'));
+
+router.get('/cases', async (req, res) => {
   const data = await scraper.fetchTimeSeries();
   return res.json(data);
 });
 
-router.get('/tweets', cache('5 minutes'), async (req, res) => {
+router.get('/tweets', async (req, res) => {
   const twit = new Twitter();
   const data = await twit.getTweets(req.query);
   return res.json(data);
 });
 
-router.get('/timeline', cache('1 hour'), async (req, res) => {
+router.get('/timeline', async (req, res) => {
   const data = await scraper.getTimeline();
   return res.json(data);
 });
 
-router.get('/fatality-rate', cache('1 hour'), async (req, res) => {
+router.get('/fatality-rate', async (req, res) => {
   const data = await scraper.getFatalityRate();
   return res.json(data);
 });

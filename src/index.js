@@ -2,7 +2,10 @@ const express = require('express');
 require('dotenv').config();
 const cors = require('cors');
 const morgan = require('morgan');
+const apicache = require('apicache');
 const compression = require('compression');
+
+const cache = apicache.middleware;
 
 const routes = require('./routes');
 
@@ -16,6 +19,7 @@ app.use(
   })
 );
 app.use(compression());
+app.use(cache('1 hour'));
 
 // setup the logger
 app.use(morgan('combined'));

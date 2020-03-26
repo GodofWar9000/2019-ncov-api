@@ -4,6 +4,10 @@
 
 Frontend can be found here [2019-ncov-frontend](https://github.com/sorxrob/2019-ncov-frontend).
 
+## Data
+
+[CSSEGISandData/COVID-19](https://github.com/CSSEGISandData/COVID-19) already stopped supplementing recovered data COVID-19. I moved to [this repo](https://github.com/bumbeishvili/covid19-daily-data) which scrapes worldometer page.
+
 ## Build Setup
 
 ```bash

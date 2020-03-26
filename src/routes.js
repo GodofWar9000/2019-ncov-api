@@ -1,13 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const apicache = require('apicache');
 const Scraper = require('./services/Scraper');
 const Twitter = require('./services/Twitter');
 
 const scraper = new Scraper();
-const cache = apicache.middleware;
-
-app.use(cache('5 minutes'));
 
 router.get('/cases', async (req, res) => {
   const data = await scraper.fetchTimeSeries();

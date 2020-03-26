@@ -5,7 +5,7 @@ const csv = require('csvtojson');
 class Scraper {
   constructor() {
     this.timeSeriesURL =
-      'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series';
+      'https://raw.githubusercontent.com/bumbeishvili/covid19-daily-data/master';
   }
 
   getHTML(url) {
@@ -137,19 +137,11 @@ class Scraper {
             roundOffCoord(i.Long) === roundOffCoord(row.Long)
         );
 
-        let r;
-
-        if (recovered === undefined || recovered === null || recovered === '') {
-          r = 0;
-        } else {
-          r = recovered[header] ? +recovered[header] : 0;
-        }
-
         obj.dates.push({
           date: header,
-          confirmed: +row[header] || 0,
-          recovered: r,
-          death: deaths ? +deaths[header] : 0
+          confirmed: Math.round(+row[header]) || 0,
+          recovered: recovered ? Math.round(+recovered[header]) : 0,
+          death: deaths ? Math.round(+deaths[header]) : 0
         });
       });
 
@@ -194,19 +186,19 @@ class Scraper {
 
   getConfirmedCases() {
     return this.parseCSV(
-      `${this.timeSeriesURL}/time_series_covid19_confirmed_global.csv`
+      `${this.timeSeriesURL}/time_series_19-covid-Confirmed.csv`
     );
   }
 
   getRecovered() {
     return this.parseCSV(
-      `${this.timeSeriesURL}/time_series_covid19_recovered_global.csv`
+      `${this.timeSeriesURL}/time_series_19-covid-Recovered.csv`
     );
   }
 
   getDeaths() {
     return this.parseCSV(
-      `${this.timeSeriesURL}/time_series_covid19_deaths_global.csv`
+      `${this.timeSeriesURL}/time_series_19-covid-Deaths.csv`
     );
   }
 

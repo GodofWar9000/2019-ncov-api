@@ -115,7 +115,7 @@ class Scraper {
     // Load recovered sheet
     const deathRows = await this.getDeaths();
 
-    confirmedRows.forEach((row) => {
+    confirmedRows.forEach(row => {
       const obj = {};
       headers.slice(0, 4).forEach(header => {
         obj[header] = row[header];
@@ -123,27 +123,33 @@ class Scraper {
       obj.dates = [];
 
       headers.slice(4).forEach((header, idx) => {
-      // Skip row when it's empty
-      if (row[header] === '') {
-        confirmedRows.splice(idx, 1);
-        return;
-      }
+        // Check if there's matching row in recovered csv
+        const recovered = recoveredRows.find(
+          i =>
+            roundOffCoord(i.Lat) === roundOffCoord(row.Lat) &&
+            roundOffCoord(i.Long) === roundOffCoord(row.Long)
+        );
+
+        // Check if there's matching row in death csv
+        const deaths = deathRows.find(
+          i =>
+            roundOffCoord(i.Lat) === roundOffCoord(row.Lat) &&
+            roundOffCoord(i.Long) === roundOffCoord(row.Long)
+        );
+
+        let r;
+
+        if (recovered === undefined || recovered === null || recovered === '') {
+          r = 0;
+        } else {
+          r = recovered[header] ? +recovered[header] : 0;
+        }
 
         obj.dates.push({
           date: header,
           confirmed: +row[header] || 0,
-          recovered:
-            +recoveredRows.find(
-              i =>
-              roundOffCoord(i.Lat) === roundOffCoord(row.Lat) &&
-              roundOffCoord(i.Long) === roundOffCoord(row.Long)
-            )[header] || 0,
-          death:
-          +deathRows.find(
-            i =>
-            roundOffCoord(i.Lat) === roundOffCoord(row.Lat) &&
-            roundOffCoord(i.Long) === roundOffCoord(row.Long)
-          )[header] || 0,
+          recovered: r,
+          death: deaths ? +deaths[header] : 0
         });
       });
 
@@ -188,57 +194,93 @@ class Scraper {
 
   getConfirmedCases() {
     return this.parseCSV(
-      `${this.timeSeriesURL}/time_series_19-covid-Confirmed.csv`
+      `${this.timeSeriesURL}/time_series_covid19_confirmed_global.csv`
     );
   }
 
   getRecovered() {
     return this.parseCSV(
-      `${this.timeSeriesURL}/time_series_19-covid-Recovered.csv`
+      `${this.timeSeriesURL}/time_series_covid19_recovered_global.csv`
     );
   }
 
   getDeaths() {
     return this.parseCSV(
-      `${this.timeSeriesURL}/time_series_19-covid-Deaths.csv`
+      `${this.timeSeriesURL}/time_series_covid19_deaths_global.csv`
     );
   }
 
   async getFatalityRate() {
-    const url = 'https://www.worldometers.info/coronavirus/coronavirus-age-sex-demographics/';
+    const url =
+      'https://www.worldometers.info/coronavirus/coronavirus-age-sex-demographics/';
 
     const $ = await this.getHTML(url);
 
-    const byAgeRows = $('h4:contains("COVID-19 Fatality Rate by AGE:")').next().next().find('table tbody tr');
+    const byAgeRows = $('h4:contains("COVID-19 Fatality Rate by AGE:")')
+      .next()
+      .next()
+      .find('table tbody tr');
     const byAge = [];
     $(byAgeRows).each((idx, el) => {
       if (idx === 0) return;
 
       byAge.push({
-        age: $(el).children('td').eq(0).text().trim(),
-        rate: $(el).children('td').eq(2).text().trim(),
+        age: $(el)
+          .children('td')
+          .eq(0)
+          .text()
+          .trim(),
+        rate: $(el)
+          .children('td')
+          .eq(2)
+          .text()
+          .trim()
       });
     });
 
-    const bySexRows = $('h4:contains("COVID-19 Fatality Rate by SEX:")').next().next().find('table tbody tr');
+    const bySexRows = $('h4:contains("COVID-19 Fatality Rate by SEX:")')
+      .next()
+      .next()
+      .find('table tbody tr');
     const bySex = [];
     $(bySexRows).each((idx, el) => {
       if (idx === 0) return;
 
       bySex.push({
-        sex: $(el).children('td').eq(0).text().trim(),
-        rate: $(el).children('td').eq(1).text().trim(),
+        sex: $(el)
+          .children('td')
+          .eq(0)
+          .text()
+          .trim(),
+        rate: $(el)
+          .children('td')
+          .eq(1)
+          .text()
+          .trim()
       });
     });
 
-    const byComorbidityRows = $('h4:contains("COVID-19 Fatality Rate by COMORBIDITY:")').next().next().find('table tbody tr');
+    const byComorbidityRows = $(
+      'h4:contains("COVID-19 Fatality Rate by COMORBIDITY:")'
+    )
+      .next()
+      .next()
+      .find('table tbody tr');
     const byComorbidity = [];
     $(byComorbidityRows).each((idx, el) => {
       if (idx === 0) return;
 
       byComorbidity.push({
-        preExistingCondition: $(el).children('td').eq(0).text().trim(),
-        rate: $(el).children('td').eq(2).text().trim(),
+        preExistingCondition: $(el)
+          .children('td')
+          .eq(0)
+          .text()
+          .trim(),
+        rate: $(el)
+          .children('td')
+          .eq(2)
+          .text()
+          .trim()
       });
     });
 

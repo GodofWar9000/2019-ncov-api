@@ -10,7 +10,7 @@ class Twitter {
 	
 	getTweets(opts) {
 		return new Promise((resolve, reject) => {
-			T.get('search/tweets', opts, function(err, data) {
+			T.get('statuses/user_timeline', opts, function(err, data) {
 				if (err) {
 					return reject(err);
 				}

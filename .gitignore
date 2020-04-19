@@ -3,5 +3,4 @@ package-lock.json
 .env
 .prettierrc
 access.log
-*.json
 .now

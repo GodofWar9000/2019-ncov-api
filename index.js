@@ -9,13 +9,13 @@ const cache = apicache.middleware;
 
 const routes = require('./routes');
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3030;
 
 const app = express();
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN
+    origin: process.env.CORS_ORIGIN,
   })
 );
 app.use(compression());

@@ -1,6 +1,8 @@
 const cheerio = require('cheerio');
 const request = require('request');
 const csv = require('csvtojson');
+const axios = require('axios');
+const moment = require('moment');
 
 class Scraper {
   constructor() {
@@ -27,40 +29,34 @@ class Scraper {
       .find('h4')
       .toArray()
       .map((h4, h4Idx) => ({
-        date: $(h4)
-          .text()
-          .trim(),
+        date: $(h4).text().trim(),
         time: timelineDiv
           .find('ul')
           .eq(h4Idx)
           .children('li')
           .toArray()
-          .map(li => ({
-            time_and_description: $(li)
-              .text()
-              .trim()
-              .replace(' (Source)', ''),
-            source: $(li)
-              .find('a')
-              .attr('href')
-          }))
+          .map((li) => ({
+            time_and_description: $(li).text().trim().replace(' (Source)', ''),
+            source: $(li).find('a').attr('href'),
+          })),
       }));
     const latest = await this.getTimelineLatest();
-    return [...latest, ...data].map(item => {
+    return [...latest, ...data].map((item) => {
       return {
         ...item,
         time: item.time
           .filter(
-            i => !i.time_and_description.includes('Total at the end of the day')
+            (i) =>
+              !i.time_and_description.includes('Total at the end of the day')
           )
-          .map(i => ({
+          .map((i) => ({
             time: i.time_and_description.slice(0, 5),
             description: i.time_and_description.replace(
               `${i.time_and_description.slice(0, 5)}: `,
               ''
             ),
-            source: i.source
-          }))
+            source: i.source,
+          })),
       };
     });
   }
@@ -75,22 +71,18 @@ class Scraper {
       .each((idx, el) => {
         if (el.name === 'h4') {
           const obj = {
-            date: $(el)
-              .text()
-              .trim(),
+            date: $(el).text().trim(),
             time: $(el)
               .next()
               .children('li')
               .toArray()
-              .map(li => ({
+              .map((li) => ({
                 time_and_description: $(li)
                   .text()
                   .trim()
                   .replace(' (Source)', ''),
-                source: $(li)
-                  .find('a')
-                  .attr('href')
-              }))
+                source: $(li).find('a').attr('href'),
+              })),
           };
 
           data.push(obj);
@@ -101,7 +93,7 @@ class Scraper {
   }
 
   async fetchTimeSeries() {
-    const roundOffCoord = coord => parseFloat(coord.trim()).toFixed(5);
+    const roundOffCoord = (coord) => parseFloat(coord.trim()).toFixed(5);
 
     const data = [];
 
@@ -115,9 +107,9 @@ class Scraper {
     // Load recovered sheet
     const deathRows = await this.getDeaths();
 
-    confirmedRows.forEach(row => {
+    confirmedRows.forEach((row) => {
       const obj = {};
-      headers.slice(0, 4).forEach(header => {
+      headers.slice(0, 4).forEach((header) => {
         obj[header] = row[header];
       });
       obj.dates = [];
@@ -125,14 +117,14 @@ class Scraper {
       headers.slice(4).forEach((header, idx) => {
         // Check if there's matching row in recovered csv
         const recovered = recoveredRows.find(
-          i =>
+          (i) =>
             roundOffCoord(i.Lat) === roundOffCoord(row.Lat) &&
             roundOffCoord(i.Long) === roundOffCoord(row.Long)
         );
 
         // Check if there's matching row in death csv
         const deaths = deathRows.find(
-          i =>
+          (i) =>
             roundOffCoord(i.Lat) === roundOffCoord(row.Lat) &&
             roundOffCoord(i.Long) === roundOffCoord(row.Long)
         );
@@ -141,7 +133,7 @@ class Scraper {
           date: header,
           confirmed: Math.round(+row[header]) || 0,
           recovered: recovered ? Math.round(+recovered[header]) : 0,
-          death: deaths ? Math.round(+deaths[header]) : 0
+          death: deaths ? Math.round(+deaths[header]) : 0,
         });
       });
 
@@ -161,7 +153,7 @@ class Scraper {
         (a, b) => a + b.dates[b.dates.length - 1].death,
         0
       ),
-      data
+      data,
     };
   }
 
@@ -171,7 +163,7 @@ class Scraper {
       csv()
         .fromStream(request.get(url))
         .subscribe(
-          json => {
+          (json) => {
             rows.push(json);
           },
           () => {
@@ -217,16 +209,8 @@ class Scraper {
       if (idx === 0) return;
 
       byAge.push({
-        age: $(el)
-          .children('td')
-          .eq(0)
-          .text()
-          .trim(),
-        rate: $(el)
-          .children('td')
-          .eq(2)
-          .text()
-          .trim()
+        age: $(el).children('td').eq(0).text().trim(),
+        rate: $(el).children('td').eq(2).text().trim(),
       });
     });
 
@@ -239,16 +223,8 @@ class Scraper {
       if (idx === 0) return;
 
       bySex.push({
-        sex: $(el)
-          .children('td')
-          .eq(0)
-          .text()
-          .trim(),
-        rate: $(el)
-          .children('td')
-          .eq(1)
-          .text()
-          .trim()
+        sex: $(el).children('td').eq(0).text().trim(),
+        rate: $(el).children('td').eq(1).text().trim(),
       });
     });
 
@@ -263,24 +239,55 @@ class Scraper {
       if (idx === 0) return;
 
       byComorbidity.push({
-        preExistingCondition: $(el)
-          .children('td')
-          .eq(0)
-          .text()
-          .trim(),
-        rate: $(el)
-          .children('td')
-          .eq(2)
-          .text()
-          .trim()
+        preExistingCondition: $(el).children('td').eq(0).text().trim(),
+        rate: $(el).children('td').eq(2).text().trim(),
       });
     });
 
     return {
       byAge,
       bySex,
-      byComorbidity
+      byComorbidity,
     };
+  }
+
+  async getFullTimeline() {
+    const res = await axios.get(
+      'https://thevirustracker.com/timeline/map-data.json'
+    );
+
+    const data = res.data.data
+      .map((i) => ({
+        ...i,
+        date: +moment(i.date, 'M/DD/YYYY').format('x'),
+      }))
+      .sort((a, b) => a.date - b.date);
+
+    let countriesMap = {};
+
+    for (let x = 0; x < data.length; x++) {
+      const item = data[x];
+      const date = moment(item.date).format('M/DD/YYYY');
+
+      if (countriesMap[item.countrycode]) {
+        countriesMap[item.countrycode][date] = {
+          cases: +item.cases,
+          deaths: +item.deaths,
+          recovered: +item.recovered,
+        };
+      } else {
+        countriesMap[item.countrycode] = {
+          flag: `https://corona.lmao.ninja/assets/img/flags/${item.countrycode.toLowerCase()}.png`,
+          [date]: {
+            cases: +item.cases,
+            deaths: +item.deaths,
+            recovered: +item.recovered,
+          },
+        };
+      }
+    }
+
+    return countriesMap;
   }
 }
 

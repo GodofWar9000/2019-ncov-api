@@ -15,9 +15,10 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: process.env.CORS_ORIGIN.split(','),
   })
 );
+
 app.use(compression());
 app.use(cache('1 hour'));
 

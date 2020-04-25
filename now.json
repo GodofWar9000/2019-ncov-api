@@ -21,11 +21,6 @@
       "src": "/api/fatality-rate",
       "dest": "/index.js",
       "methods": ["GET"]
-    },
-    {
-      "src": "/api/full-timeline",
-      "dest": "/index.js",
-      "methods": ["GET"]
     }
   ]
 }

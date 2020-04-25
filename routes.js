@@ -26,9 +26,4 @@ router.get('/fatality-rate', async (req, res) => {
   return res.json(data);
 });
 
-router.get('/full-timeline', async (req, res) => {
-  const data = await scraper.getFullTimeline();
-  return res.json(data);
-});
-
 module.exports = router;

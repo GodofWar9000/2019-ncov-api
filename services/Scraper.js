@@ -1,8 +1,6 @@
 const cheerio = require('cheerio');
 const request = require('request');
 const csv = require('csvtojson');
-const axios = require('axios');
-const moment = require('moment');
 
 class Scraper {
   constructor() {
@@ -249,45 +247,6 @@ class Scraper {
       bySex,
       byComorbidity,
     };
-  }
-
-  async getFullTimeline() {
-    const res = await axios.get(
-      'https://thevirustracker.com/timeline/map-data.json'
-    );
-
-    const data = res.data.data
-      .map((i) => ({
-        ...i,
-        date: +moment(i.date, 'M/DD/YYYY').format('x'),
-      }))
-      .sort((a, b) => a.date - b.date);
-
-    let countriesMap = {};
-
-    for (let x = 0; x < data.length; x++) {
-      const item = data[x];
-      const date = moment(item.date).format('M/DD/YYYY');
-
-      if (countriesMap[item.countrycode]) {
-        countriesMap[item.countrycode][date] = {
-          cases: +item.cases,
-          deaths: +item.deaths,
-          recovered: +item.recovered,
-        };
-      } else {
-        countriesMap[item.countrycode] = {
-          flag: `https://corona.lmao.ninja/assets/img/flags/${item.countrycode.toLowerCase()}.png`,
-          [date]: {
-            cases: +item.cases,
-            deaths: +item.deaths,
-            recovered: +item.recovered,
-          },
-        };
-      }
-    }
-
-    return countriesMap;
   }
 }
 

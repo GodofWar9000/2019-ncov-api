@@ -4,8 +4,8 @@
   "description": "Coronavirus (2019-nCoV) API",
   "main": "index.js",
   "scripts": {
-    "start": "node src/",
-    "dev": "nodemon src/"
+    "start": "node index",
+    "dev": "nodemon index"
   },
   "keywords": [
     "coronavirus",
